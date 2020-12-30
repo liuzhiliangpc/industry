@@ -13,7 +13,8 @@ import re
 
 class CleanWyWords:
     def __init__(self):
-        self.fp = 'C:\\Users\\baixing\\Desktop\\BX\\B2Bdict'
+        dir_path = os.path.dirname(os.path.abspath(__file__))
+        self.fp = os.path.join(dir_path, 'B2Bdict')
 
     def get_5118words_cleaned(self):
         # warnings.filterwarnings('ignore')

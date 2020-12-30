@@ -110,6 +110,9 @@ def apply_test(df_test,
     df_match_s['second_plist'] = df_match_s.apply(lambda r: r.rlist[3], axis=1)
     df_match_s['source_2'] = df_match_s.apply(lambda r: r.rlist[-1], axis=1)
     df_test = df_match_s.copy()
+    # 1级或2级若有属于B2B的，就是B2B
+    df_test['result_ind'] = df_test.apply(lambda r: 'B2B' if (B2B_tatoo(str(r.result)) == 'B2B' or B2B_tatoo(str(r.f_result)) == 'B2B') else B2B_tatoo(r.f_result), axis=1)
+
     # 新词
     df_test_baike = get_baike_result(df=df_test, df_first=df_first, df_dict=df_dict, df_manual=df_manual, df_second_manual=df_manual_second, flist=flist)
     df_test_baike = df_test_baike[['word', 'baike_words_list', 'baike_json_list', \
@@ -128,7 +131,7 @@ def apply_test(df_test,
     df_test['result'] = df_test.apply(lambda r: r.baike_second_result if \
                                         r.result == '' else r.result, \
                                             axis=1)    
-    # 1级或2级若有属于B2B的，就是B2B
+    # 重新判断B2B 1级或2级若有属于B2B的，就是B2B
     df_test['result_ind'] = df_test.apply(lambda r: 'B2B' if (B2B_tatoo(str(r.result)) == 'B2B' or \
               B2B_tatoo(str(r.f_result)) == 'B2B') else B2B_tatoo(r.f_result), axis=1)
     df_test['f_success_ind'] = df_test.apply(lambda r: 1 if r.f_result \
