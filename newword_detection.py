@@ -307,7 +307,7 @@ def baikewords_match_func(json_list,
                     else:
                         return [rlist[0], rlist2[0]]
             # 如果1级和2级均不是B2B行业的，则继续进入到下一个分词的百科信息进行行业判定，
-            # 直到判定出B2B，若一直没有return,则纪律最后一个分词的百科信息行业判定结果进行返回
+            # 直到判定出B2B，若一直没有return,则存下来最后一个分词的百科信息行业判定结果进行返回
             else:
                 non_B2B_result = [rlist[0], rlist2[0]]
                 continue

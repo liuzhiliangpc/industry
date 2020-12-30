@@ -35,6 +35,26 @@ def category_determine(sen,
                        flist,
                        df_first_manual,
                        df_second_manual):
+    """
+    
+
+    Parameters
+    ----------
+    sen : TYPE  string
+        DESCRIPTION.    待判定的句子
+    flist : TYPE    dict
+        DESCRIPTION.    1级2级对应关系
+    df_first_manual : TYPE  dataframe
+        DESCRIPTION.    1级人工规则
+    df_second_manual : TYPE     dataframe
+        DESCRIPTION.    2级人工规则
+
+    Returns
+    -------
+    TYPE list
+        DESCRIPTION. [1级行业结果， 2级行业结果]
+
+    """
     # 获取1级词典——dataframe
     p = os.getcwd()
     df_first_dict= pd.read_pickle(p + '\\' + 'dict_pkl\\df_first_dict.pkl')
@@ -51,6 +71,7 @@ def category_determine(sen,
     # 2级行业分词
     cut_phrase2 = list(cutwords_with_dic(new, jiebadicts_path2)['cut_phrase'])[-1]
     # 一级行业判定
+    # rlist, rlist2 是list [行业名称， 命中词list， 交叉行业List， 概率list, 判定依据]
     rlist = first_category_func(sen, cut_phrase1, df_first_dict, df_first_manual)
     # 二级行业判定
     rlist2 = match_second_func(sen, cut_phrase2, df_dict, df_second_manual)
@@ -83,7 +104,8 @@ if __name__ == '__main__':
             二级规则 —— df_manual_second
         '''
     # 行业关系（1级 2级）
-    df_cate = pd.read_excel(r'C:\Users\baixing\Desktop\BX\data\cate_info.xlsx').reset_index(drop=True)
+    path = os.getcwd()
+    df_cate = pd.read_excel(path + '//' + 'dicts/cate_info.xlsx').reset_index(drop=True)
     flist = {}
     for f, group in df_cate.groupby(df_cate.first_cate):
         flist[f] = [change_category(s) for s in list(group['second_cate'])]
@@ -107,21 +129,16 @@ if __name__ == '__main__':
     except:
         os.remove(p + '//dict_pkl//df_manual_second.pkl')
         df_manual_second.to_pickle(p + '//dict_pkl//df_manual_second.pkl')
+    # todo
+    # '1' 代表测试； 不是‘1’的都是行业判断
     if str(input()) == '1':
         dt = time.strftime("%Y%m%d", time.localtime())
         dtt = time.strftime("%Y%m%d%H%M%S", time.localtime())
         # 数据获取
         # data = Data('1', category, 100000, db)
         # df_category = data.get_category()
-        fm_category = pd.read_csv(r'C:\Users\baixing\Desktop\BX\fm_category.csv')
-        df_category = pd.read_excel(r'C:\Users\baixing\Desktop\BX\re\second_category.xlsx')
-        # categorylist 是此次要建立词典的行业列表
-        categorylist = list(df_category['second_cate'])
-        fmcatelist = list(fm_category['category'])
-        wyyblist = list(set(categorylist).difference(set(fmcatelist)))
         # 测试数据
-#        df_test = pd.read_excel(r'C:\Users\baixing\Desktop\BX\testdata\testdata_1204.xlsx').reset_index(drop=True)
-        df_test = pd.read_excel(r'C:\Users\baixing\Desktop\BX\testdata\yihuitui_words.xlsx').reset_index(drop=True)
+        df_test = pd.read_excel(path + '/' + 'dict_pkl/yihuitui_words.xlsx').reset_index(drop=True)
                 
         # 获取dict
 #        df_dict = GetCategoryDict().get_2category_dict(dt=dt)

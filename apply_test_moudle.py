@@ -16,6 +16,7 @@ from apply_muliti_process import multi_match_category
 from first_match_module import match_first_category
 from newword_detection import get_baike_result
 from utils import B2B_tatoo
+from utils import get_first_category
 
 
 def apply_test(df_test,
@@ -25,6 +26,31 @@ def apply_test(df_test,
                df_manual_second,
                flist,
                dt):
+    """
+    
+
+    Parameters
+    ----------
+    df_test : TYPE      dataframe 
+        DESCRIPTION.    测试集
+    df_first : TYPE     dataframe
+        DESCRIPTION.    1级行业词典
+    df_dict : TYPE      dataframe
+        DESCRIPTION.    2级行业词典
+    df_manual : TYPE    dataframe
+        DESCRIPTION.    2级人工规则
+    df_manual_second : TYPE  dataframe    
+        DESCRIPTION.    1级人工规则
+    flist : TYPE        dict
+        DESCRIPTION.    1级2级对应关系
+    dt : TYPE           string
+        DESCRIPTION.    日期时间
+
+    Returns
+    -------
+    None.
+
+    """
     '''标识意义
     一级行业明细 —— ftestresult
     二级行业明细 —— testresult
