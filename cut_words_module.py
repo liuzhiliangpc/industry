@@ -19,7 +19,22 @@ class CutWords:
             return jieba.lcut_for_search(x.upper())
         else:
             return jieba.lcut(x.upper())
+    # 生成1级分词词典
     def gene_own_dict(self, df):
+        """
+        
+
+        Parameters
+        ----------
+        df : TYPE       dataframe
+            DESCRIPTION.    1级行业词根dataframe
+
+        Returns
+        -------
+        int 
+            DESCRIPTION.
+
+        """
         # 生成分词词典（txt）
         f = open(self.seconddicts, 'w', encoding="utf-8")
         for i in tqdm(range(len(df))):
@@ -30,7 +45,7 @@ class CutWords:
         print('********唯一词典写入分词词典生成done！********')
         f.close()
         return 0
-    
+    # 生成2级分词词典
     def gene_own_firstdict(self, df):
         # 生成分词词典（txt）
         f = open(self.firstdicts, 'w', encoding="utf-8")

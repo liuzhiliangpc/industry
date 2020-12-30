@@ -4,12 +4,7 @@ Created on Fri Dec  4 15:57:53 2020
 
 @author: baixing
 """
-#Index(['word', 'second_category', 'first_category', 'B2B_ind', 'cut_phrase1',
-#       'f_result', 'hit_words', 'cross_set', 'plist', 'source',
-#       'f_success_ind', 'result_ind', 'amb_success_ind', 'cut_phrase',
-#       'result', 'second_hit_words', 'second_cross_set', 'second_plist',
-#       'source_2', 'success_ind'],
-#      dtype='object')
+# To do
 
 import pandas as pd
 from apply_muliti_process import multi_city_clean

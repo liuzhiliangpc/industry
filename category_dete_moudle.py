@@ -16,41 +16,19 @@ from match_rules_moudle import get_match_category
 from apply_test_moudle import apply_test
 from cut_words_module import CutWords
 from utils import change_category
+from utils import B2B_tatoo
+from utils import get_first_category
 from city_clean_module import CountryClean
 from apply_muliti_process import cutwords_with_dic
 from first_match_module import first_category_func
 from match_rules_moudle import match_second_func
 from location_tagger import LocationTagger
+from newword_detection import get_baike_result
 import os
 
 import sys
 import importlib
 # importlib.reload(sys)
-
-# 获取训练数据并划分
-# def get_data(categorylist, amt, db):
-#     data = Data('1', amt, db)
-#     start = time.clock()
-#     df_trainlist = [] 
-#     df_verifylist = [] 
-#     for c in tqdm(categorylist):
-#         df_train = data.get_train_data(c)
-#         if df_train.shape[0] == 0:
-#             print(c + '数据获取失败 ！')
-#         else:
-#             # 划分训练集与验证集
-#             df_verify_part, df_train_part = df_train.iloc[: int(len(df_train)*0.2)], \
-#                                             df_train.iloc[int(len(df_train)*0.2):]
-#             df_trainlist.append(df_train_part)
-#             df_verifylist.append(df_verify_part)
-#     end = time.clock()
-#     print('*********** 数据获取与划分耗时：'+ str(end-start) + 's *************')
-#     df_t = pd.concat(df_trainlist).reset_index(drop=True)
-#     df_v = pd.concat(df_verifylist).reset_index(drop=True)
-#     del(df_verifylist)
-#     df_t.to_pickle('dft.pkl')
-#     df_v.to_pickle('dfv.pkl')
-#     return df_t, df_v
 
 # 行业判定
 def category_determine(sen,
@@ -58,7 +36,6 @@ def category_determine(sen,
                        df_first_manual,
                        df_second_manual):
     # 获取1级词典——dataframe
-#    df_first_dict = get_first_category_dict('20201208', dicts_path1, dicts_path1c)
     p = os.getcwd()
     df_first_dict= pd.read_pickle(p + '\\' + 'dict_pkl\\df_first_dict.pkl')
     # 获取二级词典——dataframe
@@ -66,32 +43,37 @@ def category_determine(sen,
     starts = time.clock()
     # 国家识别并替换
     sen = CountryClean().country_clean(sen)
-    new = pd.DataFrame({'word': sen}, index=[1])
+    new = pd.DataFrame({'word': sen, 'result_ind': 999}, index=[1])
     jiebadicts_path1 = p + '//' + 'own_cutdicts//own_first_dict.txt'
     jiebadicts_path2 = p + '//' + 'own_cutdicts//owndict.txt'
     # 一级行业分词
-    cut_phrase1 = list(cutwords_with_dic('*', new, jiebadicts_path1)['cut_phrase'])[-1]
+    cut_phrase1 = list(cutwords_with_dic(new, jiebadicts_path1)['cut_phrase'])[-1]
     # 2级行业分词
-    cut_phrase2 = list(cutwords_with_dic('*', new, jiebadicts_path2)['cut_phrase'])[-1]
+    cut_phrase2 = list(cutwords_with_dic(new, jiebadicts_path2)['cut_phrase'])[-1]
     # 一级行业判定
     rlist = first_category_func(sen, cut_phrase1, df_first_dict, df_first_manual)
-    print(sen)
-    if rlist[0] == '其他服务':
-        print('****发现一级行业新词！无法判定一级行业*****')
-        ends = time.clock()
-        return cut_phrase1
-    else:
-        print(rlist[0])
-        # 二级行业判定
-        rlist2 = match_second_func(sen, cut_phrase2, df_dict, df_second_manual)
+    # 二级行业判定
+    rlist2 = match_second_func(sen, cut_phrase2, df_dict, df_second_manual)
+    # 如果1级和2级的结果都是新词，则提前百科信息进行行业判定
+    if rlist[0] == '其他服务' and rlist2[0] == '':
+        print('****发现行业新词！提取百科信息*****')
+        df_ = get_baike_result(df=new, df_first=df_first_dict, df_dict=df_dict, \
+                               df_manual=df_first_manual, \
+                                   df_second_manual=df_second_manual, flist=flist)
+        result_list = df_['baike_result'][0]
         ends = time.clock()
         print("判定耗时：{}s".format((ends - starts)))
-        if rlist2 == '':
-            print('****发现2级行业新词！无法判定2级行业*****')
-            return [rlist, cut_phrase2]
-        else:
-            print(rlist2[0])
-            return [rlist, rlist2]
+        return result_list
+    # 如果2级行业判定结果是B2B,则直接按2级所对应的1级作为1级行业行业判定结果
+    elif B2B_tatoo(rlist2[0]) == 'B2B':
+        ends = time.clock()
+        print("判定耗时：{}s".format((ends - starts)))
+        return [rlist2[0], get_first_category(rlist2[0], flist)]
+    # 如果以上情况均不是，则直接返回行业判定的1级和2级结果
+    else:
+        ends = time.clock()
+        print("判定耗时：{}s".format((ends - starts)))
+        return[rlist[0], rlist2[0]]
 
 
 # main()
@@ -168,7 +150,7 @@ if __name__ == '__main__':
     else:
         #行业判定（/测试）
         print('********行业判定*********')
-        category_determine(sen='固态二氧化碳',
+        print(category_determine(sen='聚苯板',
                        flist=flist,
                        df_first_manual=df_manual,
-                       df_second_manual=df_manual_second)
+                       df_second_manual=df_manual_second))

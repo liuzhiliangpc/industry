@@ -1,9 +1,3 @@
-import jieba
-import nltk
-import logging
-import os
-
-
 def remove_parentheses(entity):
     keys = {'［', '(', '[', '（'}
     symbol = {'］':'［', ')':'(', ']':'[', '）':'（'}

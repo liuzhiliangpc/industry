@@ -7,8 +7,22 @@ Created on Tue Dec  8 13:51:57 2020
 
 import pandas as pd
 
-# 优先级
+# 优先级匹配行业判定
 def priotity_func(longwords):
+    """
+    
+
+    Parameters
+    ----------
+    longwords : TYPE    string
+        DESCRIPTION.    待判定的长尾词
+
+    Returns
+    -------
+    str
+        DESCRIPTION.    行业名称
+
+    """
     if '招' in longwords:
         for w in ['生', '校']:
             if w in longwords:
@@ -41,9 +55,29 @@ def priotity_func(longwords):
             if w in longwords:
                 return ['工业制造', longwords.index('摄像')]
         return ['生活服务', longwords.index('摄像')]
-
-
+'''
+人工规则行业判断
+search_second_manual_rules(df_manual, longwords)
+df_manual —— 1级行业人工规则（dataframe）
+longwords —— 待判定的长尾词
+'''
 def search_manual_rules(df_manual, longwords):
+    """
+    
+
+    Parameters
+    ----------
+    df_manual : TYPE     dataframe
+        DESCRIPTION.    1级人工规则词根
+    longwords : TYPE    string
+        DESCRIPTION.    长尾词
+
+    Returns
+    -------
+    TYPE    list
+        DESCRIPTION.    [1级行业名称， 命中词list， 交叉行业List， 概率list, 判定依据]
+
+    """
     tricky_words = ['快递', '设计', '租', '收车', '车', '招', '摄像']
     tw_hitlist = [tw for tw in tricky_words if tw in longwords]
     if len(tw_hitlist) > 0:
@@ -98,11 +132,7 @@ def search_manual_rules(df_manual, longwords):
                     return [resultlis[0], tw_hitlist, 0, 0, '优先级匹配']
                 else:
                     return [fcl[indexlis.index(max(indexlis))], list(df_selected['m']), list(df_selected['first category']), 0, '人工筛选']
-#print(search_manual_rules(df_manual=df_manual, longwords='我有一辆车出租'))
-#print(search_manual_rules(df_manual=df_manual, longwords='我有一辆车'))
-#print(search_manual_rules(df_manual=df_manual, longwords='进行房屋出租'))
-#print(search_manual_rules(df_manual=df_manual, longwords='进行表演培训'))
-#print(search_manual_rules(df_manual=df_manual, longwords='学校表演场地'))
+
 
 def first_category_func(longwords, lis, df_first, df_manual):
 #    CutWords().gene_own_firstdict(df_first)
@@ -113,7 +143,7 @@ def first_category_func(longwords, lis, df_first, df_manual):
         res2 = match_first_category(lis, df_first)
         return res2
     
-# multi_unique match fuction
+# 多个唯一词典命中情况下按比例筛选出唯一结果
 def choose_multi_unicategory(words, rs, df):
     p = []
     # 按比重进行筛选
@@ -124,7 +154,7 @@ def choose_multi_unicategory(words, rs, df):
     # 找出比重最大的词对对应的行业
     return rs[p.index(max(p))]
 
-# cross category match fuction
+# 交叉词典后进行行业判定
 def get_cross_categoryset(crossls, hitws, df):
     # 首先选出候选行业中，候选次数最多的行业集合
     houxuanls = []
@@ -146,6 +176,7 @@ def get_cross_categoryset(crossls, hitws, df):
         # 应用概率模型
         r, plist = apply_probability_method(selected_cross, hitws, df)
     return [r, hitws, selected_cross, plist, '交叉概率']
+# 概率模型，计算属于各候选1级行业的概率大小
 def apply_probability_method(ls, hitls, df):
     plist = []
     for c in ls:
@@ -163,8 +194,24 @@ def apply_probability_method(ls, hitls, df):
     return ls[plist.index(max(plist))], plist
 
 
-    
+# 唯一词典、唯一筛选、交叉词典行业判定    
 def match_first_category(lis, df_first):
+    """
+    
+
+    Parameters
+    ----------
+    lis : TYPE      list
+        DESCRIPTION.    长尾词分词后的list
+    df_first : TYPE   dataframe
+        DESCRIPTION.    1级行业词根dataframe
+
+    Returns
+    -------
+    TYPE    list
+        DESCRIPTION. [1级行业名称， 命中词list， 交叉行业List， 概率list, 判定依据]
+
+    """    
     hit_words = []
     hit_cross = []
     result = []
@@ -232,5 +279,4 @@ def match_first_category(lis, df_first):
 #                return rs
 #        else:
         rs = get_cross_categoryset(crosslis, hit_cross, df_first)
-#            print(rs[0])
         return rs

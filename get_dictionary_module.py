@@ -176,7 +176,3 @@ class GetCategoryDict():
             df_dict.to_pickle(self.pkl + '//' + 'df_first_dict.pkl')
         return df_dict
 
-
-if __name__ == '__main__':
-    g = GetCategoryDict()
-    df1 = g.get_2category_dict(dt)
